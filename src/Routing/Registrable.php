@@ -3,13 +3,21 @@
 namespace Iocaste\Microservice\Api\Routing;
 
 use ArrayAccess;
-use Laravel\Lumen\Routing\Router;
+use Illuminate\Support\Fluent;
+use Iocaste\Microservice\Api\Http\Controllers\MicroApiController;
+use Illuminate\Support\Str;
+use Laravel\Lumen\Routing\Router as LumenRouter;
 
 /**
  * Trait Registrable
  */
 trait Registrable
 {
+    /**
+     * @var Fluent
+     */
+    protected $options;
+
     /**
      * @param array $defaults
      * @param array|ArrayAccess $options
@@ -31,31 +39,38 @@ trait Registrable
     /**
      * Attaches route to lumen router
      *
-     * @param Router $router
+     * @param LumenRouter $router
      * @param $method
      * @param $uri
      * @param array $action
      *
-     * @return Router
+     * @return LumenRouter
      */
-    protected function createRoute(Router $router, $method, $uri, array $action): ?Router
+    protected function createRoute(LumenRouter $router, $method, $uri, array $action): LumenRouter
     {
-        // dd(1);
-//        dd([
-//            $method,
-//            $uri,
-//            $action
-//        ]);
-
-//        $route = $router->get('/', [
-//            'uses' => 'Iocaste\Microservice\Api\Http\Controllers\MicroApiController@index',
-//            'as' => 'index'
-//        ]);
-
         $route = $router->{$method}($uri, $action);
 
-        // dd($route);
-
         return $route;
+    }
+
+    /**
+     * Returns controller name
+     *
+     * @return string
+     */
+    protected function getController(): string
+    {
+        // If controller was passed to override default one
+        if (\is_string($controller = $this->options->get('controller'))) {
+            return $controller;
+        }
+
+        // If controller was disabled, use our default one
+        if (true !== $controller) {
+            return $this->options['controller'] = '\\' . MicroApiController::class;
+        }
+
+        // If true, create controller from resource name
+        return $this->options['controller'] = Str::studly($this->resourceName) . 'Controller';
     }
 }

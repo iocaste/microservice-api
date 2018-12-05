@@ -3,8 +3,8 @@
 namespace Iocaste\Microservice\Api\Routing;
 
 use Closure;
-use Laravel\Lumen\Routing\Router;
 use Iocaste\Microservice\Api\Routing\Router as MicroRouter;
+use Laravel\Lumen\Routing\Router as LumenRouter;
 
 /**
  * Class ResourceRegistrar
@@ -12,16 +12,16 @@ use Iocaste\Microservice\Api\Routing\Router as MicroRouter;
 class ResourceRegistrar
 {
     /**
-     * @var Router
+     * @var LumenRouter
      */
     protected $router;
 
     /**
      * ResourceRegistrar constructor.
      *
-     * @param Router $router
+     * @param LumenRouter $router
      */
-    public function __construct(Router $router)
+    public function __construct(LumenRouter $router)
     {
         $this->router = $router;
     }
@@ -37,7 +37,7 @@ class ResourceRegistrar
         $api = null;
 
         // $as = $url->getName();
-        $as = 'api:v1:';
+        $as = 'api:v1';
 
         // $prefix = $url->getNamespace();
         $prefix = '/api/v1';

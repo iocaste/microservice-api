@@ -2,9 +2,12 @@
 
 namespace Iocaste\Microservice\Api\Routing;
 
-use Laravel\Lumen\Routing\Router as LumenRouter;
 use Illuminate\Support\Fluent;
+use Laravel\Lumen\Routing\Router as LumenRouter;
 
+/**
+ * Class Router
+ */
 class Router
 {
     /**
@@ -45,9 +48,6 @@ class Router
     public function resource($name, array $options = []): void
     {
         $options = $this->getOptions($options);
-
-        // dd(1);
-        // dd($this->createResourceGroup($name, $options));
 
         $this->createResourceGroup($name, $options)->add($this->router);
     }

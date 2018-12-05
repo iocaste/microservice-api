@@ -5,7 +5,7 @@ namespace Iocaste\Microservice\Api;
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 use Iocaste\Microservice\Api\Routing\ResourceRegistrar;
 use Iocaste\Microservice\Api\Services\MicroApiService;
-use Laravel\Lumen\Routing\Router;
+use Laravel\Lumen\Routing\Router as LumenRouter;
 
 /**
  * Class ServiceProvider
@@ -15,11 +15,11 @@ class ServiceProvider extends IlluminateServiceProvider
     /**
      * Bootstrap the application events.
      *
-     * @param Router $router
+     * @param LumenRouter $router
      *
      * @return void
      */
-    public function boot(Router $router): void
+    public function boot(LumenRouter $router): void
     {
         // Подгружает миддлвер
         $this->bootMiddleware($router);
@@ -39,11 +39,11 @@ class ServiceProvider extends IlluminateServiceProvider
     /**
      * Register package middleware.
      *
-     * @param Router $router
+     * @param LumenRouter $router
      *
      * @return void
      */
-    protected function bootMiddleware(Router $router): void
+    protected function bootMiddleware(LumenRouter $router): void
     {
         // Core micro api middleware class
         // $router->aliasMiddleware('micro-api', BootMicroApi::class);

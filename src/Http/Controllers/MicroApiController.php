@@ -11,26 +11,26 @@ class MicroApiController extends BaseController
 {
     public function index()
     {
-        return 'index';
+        return 'end reached. index';
     }
 
     public function show()
     {
-        return 'show';
+        return 'end reached. show';
     }
 
     public function store()
     {
-        return 'store';
+        return 'end reached. store';
     }
 
     public function update()
     {
-        return 'update';
+        return 'end reached. update';
     }
 
     public function destroy()
     {
-        return 'destroy';
+        return 'end reached. destroy';
     }
 }

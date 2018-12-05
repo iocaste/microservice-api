@@ -3,7 +3,7 @@
 namespace Iocaste\Microservice\Api\Routing;
 
 use Illuminate\Support\Fluent;
-use Laravel\Lumen\Routing\Router;
+use Laravel\Lumen\Routing\Router as LumenRouter;
 
 /**
  * Class ResourceGroup
@@ -20,6 +20,14 @@ class ResourceGroup
         'destroy'
     ];
 
+    protected const METHOD_MAP = [
+        'index' => 'get',
+        'show' => 'get',
+        'store' => 'post',
+        'update' => 'patch',
+        'destroy' => 'delete',
+    ];
+
     /**
      * @var string
      */
@@ -29,11 +37,6 @@ class ResourceGroup
      * @var null
      */
     protected $resolver;
-
-    /**
-     * @var Fluent
-     */
-    protected $options;
 
     /**
      * ResourceGroup constructor.
@@ -50,13 +53,13 @@ class ResourceGroup
     }
 
     /**
-     * @param Router $router
+     * @param LumenRouter $router
      *
      * @return void
      */
-    public function add(Router $router): void
+    public function add(LumenRouter $router): void
     {
-        $router->group($this->getAction(), function (Router $router) {
+        $router->group($this->getAction(), function (LumenRouter $router) {
             /** Creates primary resource routes. */
             $router->group([], function ($router) {
                 $this->addResourceRoutes($router);
@@ -74,7 +77,7 @@ class ResourceGroup
     {
         return [
             'middleware' => $this->getMiddleware(),
-            'as' => $this->resourceName . '.',
+            'as' => $this->resourceName, // . '.',
             'prefix' => $this->resourceName,
         ];
     }
@@ -102,33 +105,67 @@ class ResourceGroup
     /**
      * Sends command to lumen router to create route
      *
-     * @param Router $router
+     * @param LumenRouter $router
      * @param $action
      *
      * @return mixed
      */
-    protected function setResourceRoute(Router $router, $action)
+    protected function setResourceRoute(LumenRouter $router, $action)
     {
         return $this->createRoute(
             $router,
-            'get',
+            $this->mapRouteMethod($action),
             '/',
-            [
-                'uses' => 'Iocaste\Microservice\Api\Http\Controllers\MicroApiController@index',
-                'as' => 'index'
-            ]
+            $this->mapRouteAction($action)
         );
     }
 
     /**
      * Adds current resource REST routes
      *
-     * @param Router $router
+     * @param LumenRouter $router
      */
-    protected function addResourceRoutes(Router $router): void
+    protected function addResourceRoutes(LumenRouter $router): void
     {
         foreach ($this->getResourceActions() as $action) {
             $this->setResourceRoute($router, $action);
         }
+    }
+
+    /**
+     * Gets router method name.
+     *
+     * @param $action
+     *
+     * @return string
+     */
+    protected function mapRouteMethod($action): string
+    {
+        return self::METHOD_MAP[$action];
+    }
+
+    /**
+     * Formats action to be compatible with lumen router
+     * @link https://lumen.laravel.com/docs/5.7/routing#named-routes
+     * @param $action
+     *
+     * @return array
+     */
+    protected function mapRouteAction($action): array
+    {
+        return [
+            'uses' => $this->getControllerAction($action),
+            'as' => $action,
+        ];
+    }
+
+    /**
+     * @param $action
+     *
+     * @return string
+     */
+    protected function getControllerAction($action): string
+    {
+        return sprintf('%s@%s', $this->getController(), $action);
     }
 }
