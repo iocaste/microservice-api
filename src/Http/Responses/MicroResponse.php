@@ -9,6 +9,7 @@ use Neomerx\JsonApi\Contracts\Schema\ContainerInterface;
 use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
 use Neomerx\JsonApi\Http\BaseResponses;
 use Neomerx\JsonApi\Encoder\EncoderOptions;
+use Neomerx\JsonApi\Http\Headers\MediaType;
 
 /**
  * Class MicroResponse
@@ -114,7 +115,11 @@ class MicroResponse extends BaseResponses
      */
     protected function getMediaType(): MediaTypeInterface
     {
-        //
+//        if ($this->codecs && $mediaType = $this->codecs->getEncoderRegisteredMatchedType()) {
+//            return $mediaType;
+//        }
+
+        return new MediaType(MediaType::JSON_API_TYPE, MediaType::JSON_API_SUB_TYPE);
     }
 
     /**

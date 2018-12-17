@@ -14,6 +14,7 @@ use Iocaste\Microservice\Api\Http\Responses\MicroResponse;
 use Iocaste\Microservice\Api\Routing\ResourceRegistrar;
 use Iocaste\Microservice\Api\Services\MicroApiService;
 use Laravel\Lumen\Application;
+use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
 
 /**
  * Class ServiceProvider
@@ -84,6 +85,8 @@ class ServiceProvider extends IlluminateServiceProvider
         $this->app->singleton(Factory::class, function (Application $app) {
             return new Factory($app);
         });
+
+        $this->app->alias(Factory::class, SchemaFactoryInterface::class);
     }
 
     /**

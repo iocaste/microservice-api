@@ -4,6 +4,7 @@ namespace Iocaste\Microservice\Api;
 
 use Iocaste\Microservice\Api\Contracts\ContainerInterface;
 use Illuminate\Contracts\Container\Container as IlluminateContainer;
+use Iocaste\Microservice\Api\Exceptions\RuntimeException;
 use Neomerx\JsonApi\Contracts\Schema\SchemaInterface;
 
 /**
@@ -37,6 +38,11 @@ class Container implements ContainerInterface
      * @var IlluminateContainer
      */
     protected $container;
+
+    /**
+     * @var array
+     */
+    protected $createdSchemas = [];
 
     /**
      * Factory constructor.
@@ -85,17 +91,90 @@ class Container implements ContainerInterface
             return $this->getCreatedSchema($resourceType);
         }
 
-        if (!$this->resolver->isResourceType($resourceType)) {
-            throw new RuntimeException("Cannot create a schema because $resourceType is not a valid resource type.");
-        }
+//        if (!$this->resolver->isResourceType($resourceType)) {
+//            throw new RuntimeException("Cannot create a schema because $resourceType is not a valid resource type.");
+//        }
 
-        $className = $this->resolver->getSchemaByResourceType($resourceType);
+        // $className = $this->resolver->getSchemaByResourceType($resourceType);
+        $className = 'App\Domains\Comment\Schema';
         $schema = $this->createSchemaFromClassName($className);
+        // dd($schema);
         $this->setCreatedSchema($resourceType, $schema);
 
         return $schema;
     }
 
+    /**
+     * Get the JSON API resource type for the provided PHP type.
+     *
+     * @param $type
+     * @return null|string
+     */
+    protected function getResourceType($type): ?string
+    {
+        $resourceType = 'comments';
+
+        //        if (!$resourceType = $this->resolver->getResourceType($type)) {
+//            throw new RuntimeException("No JSON API resource type registered for PHP class {$type}.");
+//        }
+
+        return $resourceType;
+    }
+
+    /**
+     * @param string $resourceType
+     * @return bool
+     */
+    protected function hasCreatedSchema($resourceType): bool
+    {
+        return isset($this->createdSchemas[$resourceType]);
+    }
+
+    /**
+     * @param string $resourceType
+     * @return ResourceAdapterInterface|null
+     */
+    protected function getCreatedSchema($resourceType)
+    {
+        return $this->createdSchemas[$resourceType];
+    }
+
+    /**
+     * @param string $resourceType
+     * @param SchemaInterface $schema
+     * @return void
+     */
+    protected function setCreatedSchema($resourceType, SchemaInterface $schema): void
+    {
+        $this->createdSchemas[$resourceType] = $schema;
+    }
+
+    /**
+     * @param string $className
+     * @return SchemaInterface
+     */
+    protected function createSchemaFromClassName($className): SchemaInterface
+    {
+        $schema = $this->create($className);
+
+        if (! $schema instanceof SchemaInterface) {
+            throw new RuntimeException('Class [' . $className . '] is not a schema provider.');
+        }
+
+        return $schema;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function create($className)
+    {
+        if (class_exists($className) || $this->container->bound($className)) {
+            return $this->container->make($className);
+        }
+
+        return null;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------------
