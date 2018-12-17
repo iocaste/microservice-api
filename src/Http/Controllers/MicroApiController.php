@@ -2,6 +2,9 @@
 
 namespace Iocaste\Microservice\Api\Http\Controllers;
 
+use Illuminate\Http\Request;
+use Iocaste\Microservice\Api\Contracts\Resource\ResourceInterface;
+use Iocaste\Microservice\Api\Http\CreatesResponse;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
 /**
@@ -9,14 +12,28 @@ use Laravel\Lumen\Routing\Controller as BaseController;
  */
 class MicroApiController extends BaseController
 {
+    use CreatesResponse;
+
     public function index()
     {
         return 'end reached. index';
     }
 
-    public function show()
+    public function show(ResourceInterface $resource, Request $request)
     {
-        return 'end reached. show';
+        $record = $resource->getSingle('comments', 1);
+
+        if (! $record) {
+            return $this->respond()->content(null);
+            // return 'no_result';
+        }
+
+        // dd($record);
+
+        return $this->respond()->content($record);
+
+        // dd($request->route());
+        // return 'end reached. show';
     }
 
     public function store()

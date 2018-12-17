@@ -3,6 +3,7 @@
 namespace Iocaste\Microservice\Api\Routing;
 
 use Closure;
+use Iocaste\Microservice\Api\Api\Repository;
 use Iocaste\Microservice\Api\Routing\Router as MicroRouter;
 use Laravel\Lumen\Routing\Router as LumenRouter;
 
@@ -11,19 +12,30 @@ use Laravel\Lumen\Routing\Router as LumenRouter;
  */
 class ResourceRegistrar
 {
+    public const PARAM_RESOURCE_NAME = 'resource_name';
+
+    public const PARAM_RESOURCE_ID = 'record';
+
     /**
      * @var LumenRouter
      */
     protected $router;
 
     /**
+     * @var Repository
+     */
+    protected $apiRepository;
+
+    /**
      * ResourceRegistrar constructor.
      *
      * @param LumenRouter $router
+     * @param Repository $apiRepository
      */
-    public function __construct(LumenRouter $router)
+    public function __construct(LumenRouter $router, Repository $apiRepository)
     {
         $this->router = $router;
+        $this->apiRepository = $apiRepository;
     }
 
     /**
@@ -34,18 +46,13 @@ class ResourceRegistrar
      */
     public function api($version, array $options, Closure $routes): void
     {
-        $api = null;
-
-        // $as = $url->getName();
-        $as = 'api:v1';
-
-        // $prefix = $url->getNamespace();
-        $prefix = '/api/v1';
+        $api = $this->apiRepository->createApi($version);
+        $url = $api->getUrl();
 
         $this->router->group([
-            // 'middleware' => ["micro-api:{$version}", 'micro-api.bindings'],
-            'as' => $as,
-            'prefix' => $prefix,
+            'middleware' => ["micro-api:{$version}", 'micro-api.bindings'],
+            'as' => $url->getName(),
+            'prefix' => $url->getNamespace(),
         ], function () use ($api, $options, $routes) {
             $microRouter = new MicroRouter($this->router, $api, $options);
 

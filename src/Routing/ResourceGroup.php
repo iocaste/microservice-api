@@ -17,7 +17,7 @@ class ResourceGroup
         'show',
         'store',
         'update',
-        'destroy'
+        'destroy',
     ];
 
     protected const METHOD_MAP = [
@@ -108,16 +108,30 @@ class ResourceGroup
      * @param LumenRouter $router
      * @param $action
      *
-     * @return mixed
+     * @return LumenRouter
      */
-    protected function setResourceRoute(LumenRouter $router, $action)
+    protected function setResourceRoute(LumenRouter $router, $action): LumenRouter
     {
         return $this->createRoute(
             $router,
             $this->mapRouteMethod($action),
-            '/',
+            $this->getRouteUrl($action),
             $this->mapRouteAction($action)
         );
+    }
+
+    /**
+     * @param $action
+     *
+     * @return string
+     */
+    protected function getRouteUrl($action): string
+    {
+        if (\in_array($action, ['index', 'store'], true)) {
+            return $this->getBaseUrl();
+        }
+
+        return $this->getResourceUrl();
     }
 
     /**
@@ -153,6 +167,7 @@ class ResourceGroup
      */
     protected function mapRouteAction($action): array
     {
+        // dd($action)
         return [
             'uses' => $this->getControllerAction($action),
             'as' => $action,

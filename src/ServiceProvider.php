@@ -3,9 +3,17 @@
 namespace Iocaste\Microservice\Api;
 
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
+use Iocaste\Microservice\Api\Api\Repository;
+use Iocaste\Microservice\Api\Contracts\Resource\ResourceInterface;
+use Iocaste\Microservice\Api\Factories\Factory;
+use Iocaste\Microservice\Api\Http\Middleware\Authorize;
+use Iocaste\Microservice\Api\Http\Middleware\BootMicroApi;
+use Iocaste\Microservice\Api\Http\Middleware\SubstituteBindings;
+use Iocaste\Microservice\Api\Http\Requests\MicroApiRequest;
+use Iocaste\Microservice\Api\Http\Responses\MicroResponse;
 use Iocaste\Microservice\Api\Routing\ResourceRegistrar;
 use Iocaste\Microservice\Api\Services\MicroApiService;
-use Laravel\Lumen\Routing\Router as LumenRouter;
+use Laravel\Lumen\Application;
 
 /**
  * Class ServiceProvider
@@ -15,14 +23,12 @@ class ServiceProvider extends IlluminateServiceProvider
     /**
      * Bootstrap the application events.
      *
-     * @param LumenRouter $router
-     *
      * @return void
      */
-    public function boot(LumenRouter $router): void
+    public function boot(): void
     {
-        // Подгружает миддлвер
-        $this->bootMiddleware($router);
+        $this->bootMiddleware();
+        $this->bootResponseMacro();
     }
 
     /**
@@ -32,33 +38,58 @@ class ServiceProvider extends IlluminateServiceProvider
      */
     public function register(): void
     {
-        $this->bindService();
-        $this->bindRouteRegistrar();
+        $this->registerFactory();
+        $this->registerService();
+        $this->registerInboundRequest();
+        $this->registerRouteRegistrar();
+        $this->bindApiRepository();
     }
 
     /**
      * Register package middleware.
      *
-     * @param LumenRouter $router
+     * @return void
+     */
+    protected function bootMiddleware(): void
+    {
+        $this->app->routeMiddleware([
+            // Core micro api middleware class
+            'micro-api' => BootMicroApi::class,
+
+            // Binds resource ids or uuids to Models
+            'micro-api.bindings' => SubstituteBindings::class,
+
+            // General authorization middleware
+            'micro-api.auth' => Authorize::class,
+        ]);
+    }
+
+    /**
+     * Register a response macro.
      *
      * @return void
      */
-    protected function bootMiddleware(LumenRouter $router): void
+    protected function bootResponseMacro(): void
     {
-        // Core micro api middleware class
-        // $router->aliasMiddleware('micro-api', BootMicroApi::class);
+        response()->macro('microApi', function ($api = null) {
+            return MicroResponse::create($api);
+        });
+    }
 
-        // Binds resource ids or uuids to Models
-        // $router->aliasMiddleware('micro-api.bindings', SubstituteBindings::class);
-
-        // General authorization middleware
-        // $router->aliasMiddleware('micro-api.auth', Authorize::class);
+    /**
+     * Bind Api Factory
+     */
+    protected function registerFactory(): void
+    {
+        $this->app->singleton(Factory::class, function (Application $app) {
+            return new Factory($app);
+        });
     }
 
     /**
      * Bind the JSON API service as a singleton.
      */
-    protected function bindService(): void
+    protected function registerService(): void
     {
         $this->app->singleton(MicroApiService::class);
         $this->app->alias(MicroApiService::class, 'micro-api');
@@ -66,10 +97,31 @@ class ServiceProvider extends IlluminateServiceProvider
     }
 
     /**
+     * Bind the inbound request services so they can be type-hinted in controllers and authorizers.
+     */
+    protected function registerInboundRequest(): void
+    {
+        $this->app->singleton(MicroApiRequest::class);
+        $this->app->alias(MicroApiRequest::class, 'micro-api.request');
+
+        $this->app->bind(ResourceInterface::class, function () {
+            return micro_api()->getResourceRepository();
+        });
+    }
+
+    /**
      * Bind an alias for the route registrar.
      */
-    protected function bindRouteRegistrar(): void
+    protected function registerRouteRegistrar(): void
     {
         $this->app->alias(ResourceRegistrar::class, 'micro-api.registrar');
+    }
+
+    /**
+     * Bind the API repository as a singleton.
+     */
+    protected function bindApiRepository(): void
+    {
+        $this->app->singleton(Repository::class);
     }
 }

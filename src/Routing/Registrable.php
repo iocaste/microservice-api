@@ -3,6 +3,7 @@
 namespace Iocaste\Microservice\Api\Routing;
 
 use ArrayAccess;
+use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 use Iocaste\Microservice\Api\Http\Controllers\MicroApiController;
 use Illuminate\Support\Str;
@@ -17,6 +18,22 @@ trait Registrable
      * @var Fluent
      */
     protected $options;
+
+    /**
+     * @return string
+     */
+    protected function getBaseUrl(): string
+    {
+        return '/';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getResourceUrl(): string
+    {
+        return sprintf('%s/{%s}', $this->getBaseUrl(), ResourceRegistrar::PARAM_RESOURCE_ID);
+    }
 
     /**
      * @param array $defaults
@@ -48,9 +65,29 @@ trait Registrable
      */
     protected function createRoute(LumenRouter $router, $method, $uri, array $action): LumenRouter
     {
-        $route = $router->{$method}($uri, $action);
+        $action['parameters'] = [
+            ResourceRegistrar::PARAM_RESOURCE_NAME => $this->resourceName,
+        ];
 
-        return $route;
+        // dd($uri);
+        return $router->{$method}($uri, $action);
+
+        // dd($action);
+
+        // return $request->rou
+
+//        dd($action);
+//        if ($action == 'store') {
+//            dd($route);
+//        }
+        // dd($route);
+
+        // dd($this->resourceName);
+
+        // dd($this->resourceName);
+        // $route->defaults();
+
+        // return $route;
     }
 
     /**

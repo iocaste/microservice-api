@@ -3,6 +3,7 @@
 namespace Iocaste\Microservice\Api\Routing;
 
 use Illuminate\Support\Fluent;
+use Iocaste\Microservice\Api\Api\Api;
 use Laravel\Lumen\Routing\Router as LumenRouter;
 
 /**
@@ -16,7 +17,7 @@ class Router
     protected $router;
 
     /**
-     * @var ...
+     * @var Api
      */
     protected $api;
 
@@ -86,7 +87,7 @@ class Router
     {
         return [
             'default-authorizer' => $this->options->get('authorizer'),
-            'prefix' => '/api/v1', // @todo .SET.prefix $this->api->getUrl()->getNamespace()
+            'prefix' => $this->api->getUrl()->getNamespace(),
             'id' => $this->options->get('id'),
         ];
     }
