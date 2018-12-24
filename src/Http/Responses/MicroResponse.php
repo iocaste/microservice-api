@@ -27,16 +27,6 @@ class MicroResponse extends BaseResponses
     protected $schemas;
 
     /**
-     * @var ErrorRepositoryInterface
-     */
-    private $errorRepository;
-
-    /**
-     * @var CodecMatcherInterface
-     */
-    private $codecs;
-
-    /**
      * @var EncodingParametersInterface|null
      */
     protected $parameters;
@@ -49,19 +39,14 @@ class MicroResponse extends BaseResponses
     public function __construct(
         FactoryInterface $factory,
         ContainerInterface $schemas,
-        $errorRepository = null,
-        $codecs = null,
         $parameters = null,
         $urlPrefix = null
     ) {
         $this->factory = $factory;
         $this->schemas = $schemas;
-        $this->errorRepository = $errorRepository;
-        $this->codecs = $codecs;
         $this->parameters = $parameters;
         $this->urlPrefix = $urlPrefix;
     }
-
 
     public static function create($version = null)
     {
@@ -84,10 +69,6 @@ class MicroResponse extends BaseResponses
      */
     protected function getEncoder(): EncoderInterface
     {
-//        if ($this->codecs && $encoder = $this->codecs->getEncoder()) {
-//            return $encoder;
-//        }
-
         return $this->factory->createEncoder(
             $this->getSchemaContainer(),
             new EncoderOptions(0, $this->getUrlPrefix())
@@ -115,10 +96,6 @@ class MicroResponse extends BaseResponses
      */
     protected function getMediaType(): MediaTypeInterface
     {
-//        if ($this->codecs && $mediaType = $this->codecs->getEncoderRegisteredMatchedType()) {
-//            return $mediaType;
-//        }
-
         return new MediaType(MediaType::JSON_API_TYPE, MediaType::JSON_API_SUB_TYPE);
     }
 

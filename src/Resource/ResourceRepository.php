@@ -79,7 +79,7 @@ class ResourceRepository implements ResourceInterface
      */
     public function getJobNamespace($resourceName, $action)
     {
-        return $this->container->getJobByResourceName($resourceName, $action);
+        return $this->container->getJobNamespaceByResourceName($resourceName, $action);
     }
 
     /**

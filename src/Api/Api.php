@@ -8,6 +8,7 @@ use Iocaste\Microservice\Api\Http\Responses\MicroResponse;
 use Iocaste\Microservice\Api\Resource\ResourceRepository;
 
 use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
+
 // use Neomerx\JsonApi\Contracts\Http\Headers\SupportedExtensionsInterface;
 
 /**
@@ -19,6 +20,11 @@ class Api
      * @var Factory
      */
     protected $factory;
+
+    /**
+     * @var
+     */
+    protected $resolver;
 
     /**
      * @var string
@@ -49,13 +55,15 @@ class Api
      * Api constructor.
      *
      * @param Factory $factory
+     * @param $resolver
      * @param $version
      * @param Url $url
      * @param bool $useEloquent
      */
-    public function __construct(Factory $factory, $version, Url $url, $useEloquent = true)
+    public function __construct(Factory $factory, $resolver, $version, Url $url, $useEloquent = true)
     {
         $this->factory = $factory;
+        $this->resolver = $resolver;
         $this->version = $version;
         $this->url = $url;
         $this->useEloquent = $useEloquent;
@@ -94,12 +102,12 @@ class Api
     }
 
     /**
-     * @return \Iocaste\Microservice\Api\Container|ContainerInterface|null
+     * @return \Iocaste\Microservice\Api\Container\Container|ContainerInterface|null
      */
     public function getContainer(): ?ContainerInterface
     {
         if (! $this->container) {
-            $this->container = $this->factory->createApiContainer();
+            $this->container = $this->factory->createApiContainer($this->resolver);
         }
 
         return $this->container;
@@ -123,10 +131,9 @@ class Api
      * Create a responses helper for this API.
      *
      * @param EncodingParametersInterface|null $parameters
-     * @param SupportedExtensionsInterface|null $extensions
      * @return MicroResponse
      */
-    public function response($parameters = null, $extensions = null): MicroResponse
+    public function response($parameters = null): MicroResponse
     {
         return $this->factory->createResponse(
             $this->getContainer(),

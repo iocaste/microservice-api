@@ -37,12 +37,24 @@ class MicroApiRequest
     }
 
     /**
+     * Get the domain record full namespace that is subject of the request.
+     *
+     * @return string
+     */
+    public function getResourceNamespace(): string
+    {
+        dd('1');
+
+        return 'App\Data\Models\Comment\Comment';
+    }
+
+    /**
+     * @param mixed $request
      * @return string|null
      */
     public function getResourceName($request): ?string
     {
         return RouteParameter::get($request, ResourceRegistrar::PARAM_RESOURCE_NAME);
-        // return $this->request->route(ResourceRegistrar::PARAM_RESOURCE_NAME);
     }
 
     /**

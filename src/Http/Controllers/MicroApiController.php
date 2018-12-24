@@ -14,30 +14,39 @@ class MicroApiController extends BaseController
 {
     use CreatesResponse;
 
-    public function index()
+    /**
+     * @param ResourceInterface $resource
+     *
+     * @return mixed
+     */
+    public function index(ResourceInterface $resource)
     {
-        return 'end reached. index';
+        $records = $resource->getList('comments');
+
+        return $this->respond()->content($records);
     }
 
+    /**
+     * @param ResourceInterface $resource
+     * @param Request $request
+     *
+     * @return mixed
+     */
     public function show(ResourceInterface $resource, Request $request)
     {
         $record = $resource->getSingle('comments', 1);
 
         if (! $record) {
             return $this->respond()->content(null);
-            // return 'no_result';
         }
 
-        // dd($record);
-
         return $this->respond()->content($record);
-
-        // dd($request->route());
-        // return 'end reached. show';
     }
 
-    public function store()
+    public function store(Request $request)
     {
+        dd($request->route());
+
         return 'end reached. store';
     }
 

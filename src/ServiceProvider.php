@@ -4,6 +4,8 @@ namespace Iocaste\Microservice\Api;
 
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 use Iocaste\Microservice\Api\Api\Repository;
+use Iocaste\Microservice\Api\Contracts\ContainerInterface;
+use Iocaste\Microservice\Api\Contracts\Factory\FactoryInterface;
 use Iocaste\Microservice\Api\Contracts\Resource\ResourceInterface;
 use Iocaste\Microservice\Api\Factories\Factory;
 use Iocaste\Microservice\Api\Http\Middleware\Authorize;
@@ -15,6 +17,7 @@ use Iocaste\Microservice\Api\Routing\ResourceRegistrar;
 use Iocaste\Microservice\Api\Services\MicroApiService;
 use Laravel\Lumen\Application;
 use Neomerx\JsonApi\Contracts\Schema\SchemaFactoryInterface;
+use Neomerx\JsonApi\Contracts\Factories\FactoryInterface as NeomerxFactoryInterface;
 
 /**
  * Class ServiceProvider
@@ -86,7 +89,10 @@ class ServiceProvider extends IlluminateServiceProvider
             return new Factory($app);
         });
 
+        $this->app->alias(Factory::class, FactoryInterface::class);
+        $this->app->alias(Factory::class, NeomerxFactoryInterface::class);
         $this->app->alias(Factory::class, SchemaFactoryInterface::class);
+
     }
 
     /**
@@ -109,6 +115,10 @@ class ServiceProvider extends IlluminateServiceProvider
 
         $this->app->bind(ResourceInterface::class, function () {
             return micro_api()->getResourceRepository();
+        });
+
+        $this->app->bind(ContainerInterface::class, function () {
+            return micro_api()->getContainer();
         });
     }
 
