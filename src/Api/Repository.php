@@ -43,9 +43,11 @@ class Repository
     {
         $config = $this->getConfig($version);
         $config = $this->transform($config, $host);
+        $resolver = $this->factory->createResolver($version, $config);
 
         $api = new Api(
             $this->factory,
+            $resolver,
             $version,
             Url::fromArray($config['url']),
             $config['use-eloquent']
@@ -119,7 +121,6 @@ class Repository
         if ($host) {
             $url['host'] = $host;
         } elseif (!isset($url['host'])) {
-            // $url['host'] = $this->config->get('app.url');
             $url['host'] = env('APP_URL');
         }
 

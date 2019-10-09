@@ -167,7 +167,6 @@ class ResourceGroup
      */
     protected function mapRouteAction($action): array
     {
-        // dd($action)
         return [
             'uses' => $this->getControllerAction($action),
             'as' => $action,

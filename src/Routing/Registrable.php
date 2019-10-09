@@ -3,7 +3,6 @@
 namespace Iocaste\Microservice\Api\Routing;
 
 use ArrayAccess;
-use Illuminate\Http\Request;
 use Illuminate\Support\Fluent;
 use Iocaste\Microservice\Api\Http\Controllers\MicroApiController;
 use Illuminate\Support\Str;
@@ -69,25 +68,7 @@ trait Registrable
             ResourceRegistrar::PARAM_RESOURCE_NAME => $this->resourceName,
         ];
 
-        // dd($uri);
         return $router->{$method}($uri, $action);
-
-        // dd($action);
-
-        // return $request->rou
-
-//        dd($action);
-//        if ($action == 'store') {
-//            dd($route);
-//        }
-        // dd($route);
-
-        // dd($this->resourceName);
-
-        // dd($this->resourceName);
-        // $route->defaults();
-
-        // return $route;
     }
 
     /**

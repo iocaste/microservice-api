@@ -45,5 +45,10 @@
         "files": [
             "src/helpers.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Iocaste\\Microservice\\Api\\Tests\\": "tests/lib"
+        }
     }
 }
