@@ -92,6 +92,7 @@ class ServiceProvider extends IlluminateServiceProvider
         $this->app->alias(Factory::class, FactoryInterface::class);
         $this->app->alias(Factory::class, NeomerxFactoryInterface::class);
         $this->app->alias(Factory::class, SchemaFactoryInterface::class);
+
     }
 
     /**
